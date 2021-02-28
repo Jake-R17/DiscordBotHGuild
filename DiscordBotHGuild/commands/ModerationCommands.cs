@@ -12,7 +12,12 @@ namespace DiscordBotHGuild.commands
 {
     public class ModerationCommands : BaseCommandModule
     {
-        // COMPLETE
+        /// <summary>
+        /// Purge Command - COMPLETE
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
         [Command("purge")]
         [Description("Removes the specified amount of messages within the specified channel")]
         [Cooldown(1, 5, CooldownBucketType.Channel)]
@@ -73,11 +78,17 @@ namespace DiscordBotHGuild.commands
             }
         }
 
-        // COMPLETE
+        /// <summary>
+        /// Ban Command - MALFUNCTION
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="user"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
         [Command("ban")]
         [Description("Bans the specified user, requires the 'Ban Members' permission")]
-        [Hidden]
         [RequirePermissions(Permissions.BanMembers)]
+        [Hidden]
         public async Task Ban(CommandContext ctx, DiscordMember user = null, [RemainingText] string reason = "reason was not specified")
         {
             if (ctx.Guild == null)
@@ -86,9 +97,6 @@ namespace DiscordBotHGuild.commands
             }
 
             await ctx.Message.DeleteAsync().ConfigureAwait(false);
-
-            // Get the bot you're checking can ban
-            var bot = ctx.Guild.Members.FirstOrDefault(x => x.Value.Username == ctx.Client.CurrentUser.Username.ToString()).Value;
 
             var noUser = new DiscordEmbedBuilder()
                 .WithDescription($"{Bot.nerdCross} Please specify a user or their ID")
@@ -99,6 +107,14 @@ namespace DiscordBotHGuild.commands
                 await ctx.Channel.SendMessageAsync(embed: noUser).ConfigureAwait(false);
                 return;
             }
+
+            // Get the bot you're checking can ban
+            var bot = ctx.Guild.Members.FirstOrDefault(x => x.Value.Username == ctx.Client.CurrentUser.Username.ToString()).Value;
+
+            // Hierarchy checks. Top role (POS) to int.
+            var botHierarchy = bot.Hierarchy;
+            var memberHierarchy = user.Hierarchy;
+            var summonerHierarchy = ctx.Member.Hierarchy;
 
             var banEmbed = new DiscordEmbedBuilder()
                 .WithDescription($"**{ctx.User.Mention} has banned {user.Mention}**")
@@ -114,72 +130,37 @@ namespace DiscordBotHGuild.commands
                 .WithThumbnail(ctx.Guild.IconUrl)
                 .WithFooter($" •  {bot.Username}  •  Date: {DateTime.UtcNow:dd/M/yyyy}", bot.AvatarUrl);
 
-            // Explain why x can't be done
-            string explanation = String.Empty;
-
             var cannotBan = new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor(255, 0, 0));
 
-            // Make lists
-            List<DiscordRole> summonerRoles = new List<DiscordRole>();
-            List<DiscordRole> serverRoles = new List<DiscordRole>();
-            List<DiscordRole> botRoles = new List<DiscordRole>();
-            List<DiscordRole> memberRoles = new List<DiscordRole>();
-
-            // Add to lists
-            foreach (var sur in ctx.Member.Roles.OrderByDescending(x => x.Position))
-            {
-                summonerRoles.Add(sur);
-            }
-
-            foreach (var sr in ctx.Guild.Roles.OrderByDescending(x => x.Value.Position))
-            {
-                serverRoles.Add(sr.Value);
-            }
-
-            foreach (var br in bot.Roles.OrderByDescending(x => x.Position))
-            {
-                botRoles.Add(br);
-            }
-
-            foreach (var mr in user.Roles.OrderByDescending(x => x.Position))
-            {
-                memberRoles.Add(mr);
-            }
-
-            // Get the first/top roles of x
-            var summonerTop = summonerRoles[0];
-
-            Console.WriteLine(summonerTop);
-
-            var botTop = botRoles[0];
-
-            Console.WriteLine(botTop);
-
-            var memberTop = memberRoles[0];
-
-            Console.WriteLine(memberTop);
+            // Explain why x can't be done
+            string explanation = String.Empty;
 
             // If's and executions. Checking role logic
-            if (serverRoles.IndexOf(botTop) < serverRoles.IndexOf(memberTop))
+            if (memberHierarchy < botHierarchy)
             {
                 await user.SendMessageAsync(embed: banEmbedDM).ConfigureAwait(false);
                 await user.BanAsync().ConfigureAwait(false);
                 await ctx.Channel.SendMessageAsync(embed: banEmbed).ConfigureAwait(false);
             }
-            else if (serverRoles.IndexOf(botTop) > serverRoles.IndexOf(memberTop) || user.IsBot)
+            else if (memberHierarchy > botHierarchy || user.IsBot)
             {
                 explanation = $"{Bot.nerdCross} I can't ban that user.";
-                await ctx.Channel.SendMessageAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(embed: cannotBan.WithDescription(explanation.ToString())).ConfigureAwait(false);
             }
-            else if (serverRoles.IndexOf(summonerTop) >= serverRoles.IndexOf(memberTop))
+            else if (memberHierarchy >= summonerHierarchy)
             {
                 explanation = $"{Bot.nerdCross} The specified user has equal or more permissions than you.";
-                await ctx.Channel.SendMessageAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(embed: cannotBan.WithDescription(explanation.ToString())).ConfigureAwait(false);
             }
         }
 
-        // COMPLETE
+        /// <summary>
+        /// Unban Command - COMPLETE
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [Command("unban")]
         [Description("Unbans the specified user")]
         [Hidden]
@@ -226,6 +207,9 @@ namespace DiscordBotHGuild.commands
         }
     }
 
+    /// <summary>
+    /// UNCERTAIN COMMANDS - CAN BE REMOVED IF DEEMED UNNECESSARY
+    /// </summary>
     [Group("move")]
     [Hidden]
     public class MoveMembers : BaseCommandModule
@@ -319,7 +303,6 @@ namespace DiscordBotHGuild.commands
                     await ctx.RespondAsync("failed to execute").ConfigureAwait(false);
                 }
             }
-
         }
     }
 }

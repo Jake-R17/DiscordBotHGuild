@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DiscordBotGuild
@@ -107,7 +108,6 @@ namespace DiscordBotGuild
 
         private async Task OnCommandFail(CommandsNextExtension ext, CommandErrorEventArgs e)
         {
-            // General debug
             var guild = ext.Client.Guilds.FirstOrDefault(x => x.Value.Id == 622059558340395008).Value;
 
             var debug = guild.Channels.FirstOrDefault(x => x.Value.Id == 812292213182431253).Value;
@@ -124,18 +124,20 @@ namespace DiscordBotGuild
                 }
             }
 
-            // Cooldowns
             if (e.Exception is ChecksFailedException ex)
             {
-
                 if (ex.FailedChecks.Count > 0)
                 {
                     foreach (var f in ex.FailedChecks)
                     {
                         if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.CooldownAttribute")
                         {
-                            await e.Context.Message.DeleteAsync();
                             await e.Context.RespondAsync($"{e.Context.User.Mention} please wait a bit before using this command again.");
+                            return;
+                        }
+                        if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.RequirePermissionsAttribute")
+                        {
+                            await e.Context.RespondAsync($"{e.Context.User.Mention} you have insufficient permissions...");
                             return;
                         }
                     }
