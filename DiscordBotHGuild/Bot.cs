@@ -18,7 +18,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static DiscordBotHGuild.commands.test.TestC;
 
 namespace DiscordBotGuild
 {
@@ -31,6 +30,11 @@ namespace DiscordBotGuild
         // Emojis
         public static DiscordEmoji nerdCheckmark;
         public static DiscordEmoji nerdCross;
+        public static DiscordEmoji statOnline;
+        public static DiscordEmoji statIdle;
+        public static DiscordEmoji statDND;
+        public static DiscordEmoji statOffline;
+        public static DiscordEmoji statStreaming;
 
         public async Task RunAsync()
         {
@@ -95,7 +99,6 @@ namespace DiscordBotGuild
 
             // TESTING
             Commands.RegisterCommands<TestC>();
-            Commands.RegisterCommands<MoveCS>();
 
 
             // Run bot, time infinite
@@ -117,11 +120,19 @@ namespace DiscordBotGuild
                 name: "with my big tits");
             await Client.UpdateStatusAsync(status).ConfigureAwait(false);
 
-            // Discord emojis
+            // Get the owner guild (In my case, "Step Off Nerd")
             var botGuild = sender.Guilds.FirstOrDefault(x => x.Value.Id == 622059558340395008).Value;
 
+            // Default (yes/no)
             nerdCheckmark = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "nerd_checkmark").Value;
             nerdCross = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "nerd_cross").Value;
+
+            // Discord status
+            statOnline = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_online").Value;
+            statIdle = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_idle").Value;
+            statDND = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_dnd").Value;
+            statOffline = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_offline").Value;
+            statStreaming = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_streaming").Value;
         }
 
         private async Task OnCommandFail(CommandsNextExtension ext, CommandErrorEventArgs e)

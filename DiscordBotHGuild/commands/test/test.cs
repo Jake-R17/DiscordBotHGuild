@@ -13,7 +13,6 @@ namespace DiscordBotHGuild.commands.test
         [Hidden]
         public class MoveCS : BaseCommandModule
         {
-            // COMPLETE
             [GroupCommand]
             [Description("Moves all players or just the specified player from call x to x")]
             [RequirePermissions(Permissions.MoveMembers)]

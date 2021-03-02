@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace DiscordBotHGuild.commands.help
 {
-    [Group("help")]
+    [Group("ahelp")]
     [Hidden]
     public class HelpC : BaseCommandModule
     {
