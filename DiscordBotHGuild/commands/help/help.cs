@@ -1,11 +1,12 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using System.Threading.Tasks;
-namespace DiscordBotHGuild.commands
+
+namespace DiscordBotHGuild.commands.help
 {
     [Group("help")]
-    [Aliases("h")]
-    public class HelpList : BaseCommandModule
+    [Hidden]
+    public class HelpC : BaseCommandModule
     {
         [GroupCommand]
         [Description("Displays all public commands")]

@@ -1,12 +1,11 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using System.Threading.Tasks;
 
 namespace DiscordBotHGuild.commands
 {
-    public class WeirdShit : BaseCommandModule
+    public class SophieC : BaseCommandModule
     {
         [Command("beloved")]
         [Description("Sophie's special command, BACK THE FUCK OFF!")]

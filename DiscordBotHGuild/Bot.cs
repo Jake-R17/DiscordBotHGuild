@@ -1,4 +1,9 @@
 ﻿using DiscordBotHGuild.commands;
+using DiscordBotHGuild.commands.admin;
+using DiscordBotHGuild.commands.admin.PRIVATE;
+using DiscordBotHGuild.commands.general;
+using DiscordBotHGuild.commands.help;
+using DiscordBotHGuild.commands.test;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
@@ -9,12 +14,11 @@ using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using static DiscordBotHGuild.commands.test.TestC;
 
 namespace DiscordBotGuild
 {
@@ -73,12 +77,26 @@ namespace DiscordBotGuild
 
             Commands.CommandErrored += OnCommandFail;
 
-            Commands.RegisterCommands<GeneralCommands>();
-            Commands.RegisterCommands<ModerationCommands>();
-            Commands.RegisterCommands<RoleCommands>();
-            Commands.RegisterCommands<MoveMembers>();
-            Commands.RegisterCommands<WeirdShit>();
-            Commands.RegisterCommands<OwnerCommands>();
+            // Registration of all commands (C = Command)
+            Commands.RegisterCommands<BanC>();
+            Commands.RegisterCommands<PurgeC>();
+            Commands.RegisterCommands<UnbanC>();
+            Commands.RegisterCommands<VerificationC>();
+            Commands.RegisterCommands<AvatarC>();
+            Commands.RegisterCommands<ProfileC>();
+            Commands.RegisterCommands<HelpC>();
+
+            // PRIVATE
+            Commands.RegisterCommands<MigrationC>();
+            Commands.RegisterCommands<RebootC>();
+
+            // EXTRA
+            Commands.RegisterCommands<SophieC>();
+
+            // TESTING
+            Commands.RegisterCommands<TestC>();
+            Commands.RegisterCommands<MoveCS>();
+
 
             // Run bot, time infinite
             await Client.ConnectAsync();
@@ -108,6 +126,15 @@ namespace DiscordBotGuild
 
         private async Task OnCommandFail(CommandsNextExtension ext, CommandErrorEventArgs e)
         {
+            if (e.Exception is ArgumentException exc)
+            {
+                if (exc.Message == "Could not find a suitable overload for the command.")
+                {
+                    await e.Context.RespondAsync($"{Bot.nerdCross} I could not find that user within this server.");
+                    return;
+                }
+            }
+
             var guild = ext.Client.Guilds.FirstOrDefault(x => x.Value.Id == 622059558340395008).Value;
 
             var debug = guild.Channels.FirstOrDefault(x => x.Value.Id == 812292213182431253).Value;
@@ -137,7 +164,7 @@ namespace DiscordBotGuild
                         }
                         if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.RequirePermissionsAttribute")
                         {
-                            await e.Context.RespondAsync($"{e.Context.User.Mention} you have insufficient permissions...");
+                            await e.Context.RespondAsync($"{e.Context.User.Mention} you have insufficient permissions.");
                             return;
                         }
                     }

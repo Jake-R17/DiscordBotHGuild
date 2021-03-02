@@ -5,9 +5,9 @@ using DSharpPlus.Interactivity.Extensions;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DiscordBotHGuild.commands
+namespace DiscordBotHGuild.commands.admin
 {
-    public class RoleCommands : BaseCommandModule
+    public class VerificationC : BaseCommandModule
     {
         [Command("verify")]
         [Aliases("continue")]
@@ -36,7 +36,7 @@ namespace DiscordBotHGuild.commands
                 .WithFooter($"  • {ctx.User.Username}#{ctx.User.Discriminator}", ctx.User.AvatarUrl);
 
             // Send message, create variable
-            var verifyMessage = await ctx.Channel.SendMessageAsync(embed: verifyEmbed.WithThumbnail(ctx.User.AvatarUrl)).ConfigureAwait(false); 
+            var verifyMessage = await ctx.Channel.SendMessageAsync(embed: verifyEmbed.WithThumbnail(ctx.User.AvatarUrl)).ConfigureAwait(false);
 
             // Get reactions
             var verifyAgree = DiscordEmoji.FromName(ctx.Client, ":white_check_mark:");
@@ -72,7 +72,7 @@ namespace DiscordBotHGuild.commands
 
             await verifyMessage.DeleteAsync().ConfigureAwait(false);
         }
-        
+
         public async void DeleteMessage(DiscordMessage msg)
         {
             await Task.Delay(30000);
