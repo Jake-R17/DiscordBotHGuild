@@ -18,10 +18,7 @@ namespace DiscordBotHGuild.commands.admin
         [Hidden]
         public async Task Purge(CommandContext ctx, string input = null)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
+            if (ctx.Guild == null) { return; }
 
             await ctx.Message.DeleteAsync().ConfigureAwait(false);
 

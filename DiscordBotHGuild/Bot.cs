@@ -83,10 +83,14 @@ namespace DiscordBotGuild
 
             // Registration of all commands (C = Command)
             Commands.RegisterCommands<BanC>();
+            Commands.RegisterCommands<MuteC>();
+            Commands.RegisterCommands<KickC>();
             Commands.RegisterCommands<PurgeC>();
             Commands.RegisterCommands<UnbanC>();
             Commands.RegisterCommands<VerificationC>();
             Commands.RegisterCommands<AvatarC>();
+            Commands.RegisterCommands<EightballC>();
+            Commands.RegisterCommands<MembersC>();
             Commands.RegisterCommands<ProfileC>();
             Commands.RegisterCommands<HelpC>();
 
@@ -141,7 +145,7 @@ namespace DiscordBotGuild
             {
                 if (exc.Message == "Could not find a suitable overload for the command.")
                 {
-                    await e.Context.RespondAsync($"{Bot.nerdCross} I could not find that user within this server.");
+                    await e.Context.RespondAsync($"{Bot.nerdCross} that is not a valid user.");
                     return;
                 }
             }
@@ -176,6 +180,11 @@ namespace DiscordBotGuild
                         if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.RequirePermissionsAttribute")
                         {
                             await e.Context.RespondAsync($"{e.Context.User.Mention} you have insufficient permissions.");
+                            return;
+                        }
+                        if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.RequireBotPermissionsAttribute")
+                        {
+                            await e.Context.RespondAsync($"{e.Context.User.Mention} I'm lacking certain permissions associated with this command");
                             return;
                         }
                     }

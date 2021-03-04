@@ -12,10 +12,7 @@ namespace DiscordBotHGuild.commands.general
         [Description("Shows the profile picture of you or the given user")]
         public async Task Avatar(CommandContext ctx, DiscordMember user = null)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
+            if (ctx.Guild == null) { return; }
 
             user = (DiscordMember)(user ?? ctx.Member);
 

@@ -13,12 +13,7 @@ namespace DiscordBotHGuild.commands.admin
         [Aliases("continue")]
         public async Task Verify(CommandContext ctx)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
-
-            await ctx.Message.DeleteAsync().ConfigureAwait(false);
+            if (ctx.Guild == null) { return; }
 
             // Check for role
             var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLower().Contains("verified")).Value;
@@ -28,6 +23,8 @@ namespace DiscordBotHGuild.commands.admin
                 await ctx.RespondAsync("There is no role called 'verified', please create this role to add a verification method.").ConfigureAwait(false);
                 return;
             }
+
+            await ctx.Message.DeleteAsync().ConfigureAwait(false);
 
             // Embed
             var verifyEmbed = new DiscordEmbedBuilder()

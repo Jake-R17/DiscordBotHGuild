@@ -2,6 +2,8 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DiscordBotHGuild.commands.general
@@ -9,34 +11,49 @@ namespace DiscordBotHGuild.commands.general
     public class ProfileC : BaseCommandModule
     {
         [Command("profile")]
-        [Aliases("p", "pf")]
-        [Description("Shows some general information about a given user")]
-        public async Task Profile(CommandContext ctx, DiscordMember user = null)
+        [Aliases("uinfo", "whois", "memberinfo", "account")]
+        [Description("Shows some general information about a given member")]
+        public async Task Profile(CommandContext ctx, DiscordMember member = null)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
+            if (ctx.Guild == null) { return; }
 
-            user = (DiscordMember)(user ?? ctx.Member);
-
-            var presence = user.Presence.Status.ToString();
-            var displayStatus = string.Empty;
+            member = (DiscordMember)(member ?? ctx.Member);
 
             // Get status
-            if (presence == "Online") { displayStatus = $"{Bot.statOnline} Online"; }
-            if (presence == "Idle") { displayStatus = $"{Bot.statIdle} Idle"; }
-            if (presence == "DoNotDisturb") { displayStatus = $"{Bot.statDND} Do Not Disturb"; }
-            if (presence == "DoNotDisturb") { displayStatus = $"{Bot.statOffline} Offline"; }
-            if (presence == "Streamin") { displayStatus = $"{Bot.statStreaming} Streaming"; }
+            var status = member.Presence.Status.ToString();
+            var displayStatus = string.Empty;
+
+            if (status == "Online") { displayStatus = $"{Bot.statOnline} Online"; }
+            if (status == "Idle") { displayStatus = $"{Bot.statIdle} Idle"; }
+            if (status == "DoNotDisturb") { displayStatus = $"{Bot.statDND} Do Not Disturb"; }
+            if (status == "Offline") { displayStatus = $"{Bot.statOffline} Offline"; }
+            if (status == "Streaming") { displayStatus = $"{Bot.statStreaming} Streaming"; }
+
+            // Get activity
+            var activity = member.Presence.Activity.ActivityType.ToString();
+
+            if (activity == null) { activity = "none"; }
+            if (activity == "ListeningTo") { activity = ":notes: Listening To Music"; }
+            if (activity == "Playing") { activity = ":video_game: Playing a game"; }
+            if (activity == "Streaming") { activity = ":red_circle: Streaming something fun"; }
+            if (activity == "Custom") { activity = ":magic_wand: A custom status, interesting"; }
+            if (activity == "Competing") { activity = ":crossed_swords: Competing in a game"; }
+
+            // Get roles
+            var roles = member.Roles.ToString();
 
             var profileEmbed = new DiscordEmbedBuilder()
-                .WithTitle($"Profile of {user.DisplayName}#{user.Discriminator}")
-                .AddField("Joined at:", $"`{user.CreationTimestamp:dd/M/yyyy}`", true)
-                .AddField("Joined server at:", $"`{user.JoinedAt.UtcDateTime:dd/M/yyyy}`", true)
-                .AddField("Status:", $"{displayStatus}", true)
-                .AddField("Activity:", $"`{user.Presence.Activity.ActivityType}`", true)
-                .WithThumbnail(user.AvatarUrl);
+                .WithTitle($"Info about {member.DisplayName}#{member.Discriminator}")
+
+                .AddField("Username and UID", $"{member.DisplayName}#{member.Discriminator} | {member.Id}", true)
+                .AddField("Status:", displayStatus, true)
+                .AddField("Activity:", activity, true)
+
+                .AddField("Account Created At:", member.CreationTimestamp.UtcDateTime.ToString(), true)
+                .AddField("Joined Server At:", $"{member.JoinedAt.UtcDateTime:dd/M/yyyy}", true)
+                .AddField("Roles:", roles, true)
+
+                .WithThumbnail(member.AvatarUrl);
 
             await ctx.RespondAsync(embed: profileEmbed).ConfigureAwait(false);
         }

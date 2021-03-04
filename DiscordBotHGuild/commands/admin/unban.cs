@@ -15,10 +15,7 @@ namespace DiscordBotHGuild.commands.admin
         [RequirePermissions(Permissions.BanMembers)]
         public async Task Unban(CommandContext ctx, DiscordUser user = null)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
+            if (ctx.Guild == null) { return; }
 
             await ctx.Message.DeleteAsync().ConfigureAwait(false);
 
@@ -31,7 +28,7 @@ namespace DiscordBotHGuild.commands.admin
             if (user == null)
             {
                 info = $"{Bot.nerdCross} Please specify a user.";
-                await ctx.RespondAsync(embed: notBannedEmbed.WithDescription(info.ToString())).ConfigureAwait(false);
+                await ctx.RespondAsync(embed: notBannedEmbed.WithDescription(info)).ConfigureAwait(false);
                 return;
             }
 
@@ -48,7 +45,7 @@ namespace DiscordBotHGuild.commands.admin
             catch
             {
                 info = $"{Bot.nerdCross} That user isn't banned.";
-                await ctx.RespondAsync(embed: notBannedEmbed.WithDescription(info.ToString())).ConfigureAwait(false);
+                await ctx.RespondAsync(embed: notBannedEmbed.WithDescription(info)).ConfigureAwait(false);
             }
         }
     }

@@ -11,10 +11,7 @@ namespace DiscordBotHGuild.commands
         [Description("Sophie's special command, BACK THE FUCK OFF!")]
         public async Task Beloved(CommandContext ctx)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
+            if (ctx.Guild == null) { return; }
 
             await ctx.Message.DeleteAsync().ConfigureAwait(false);
 
