@@ -58,16 +58,19 @@ namespace DiscordBotHGuild.commands.admin
             string explanation;
 
             // Hierarchy checking and executions
+            if (member == ctx.Member)
+            {
+                await ctx.RespondAsync($"{Bot.nerdCross} Cannot ban yourself!").ConfigureAwait(false);
+                return;
+            }
+
             if (memberHierarchy < botHierarchy)
             {
                 await member.SendMessageAsync(embed: banEmbedDM).ConfigureAwait(false);
                 await member.BanAsync(7, reason).ConfigureAwait(false);
                 await ctx.RespondAsync(embed: banEmbed).ConfigureAwait(false);
             }
-            else if (member == ctx.Member)
-            {
-                await ctx.RespondAsync($"{Bot.nerdCross} Cannot ban yourself!").ConfigureAwait(false);
-            }
+
             else if (memberHierarchy > botHierarchy || member.IsBot)
             {
                 explanation = $"{Bot.nerdCross} I can't ban that user.";

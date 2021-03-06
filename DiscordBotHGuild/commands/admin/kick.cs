@@ -56,16 +56,18 @@ namespace DiscordBotHGuild.commands.admin
             string explanation;
 
             // Hierarchy checking and executions
+            if (member == ctx.Member)
+            {
+                await ctx.RespondAsync($"{Bot.nerdCross} Cannot kick yourself!").ConfigureAwait(false);
+            }
+
             if (memberHierarchy < botHierarchy)
             {
                 await member.SendMessageAsync(embed: kickEmbedDM).ConfigureAwait(false);
                 await member.RemoveAsync().ConfigureAwait(false);
                 await ctx.RespondAsync(embed: kickEmbed).ConfigureAwait(false);
             }
-            else if (member == ctx.Member)
-            {
-                await ctx.RespondAsync($"{Bot.nerdCross} Cannot kick yourself!").ConfigureAwait(false);
-            }
+
             else if (memberHierarchy > botHierarchy || member.IsBot)
             {
                 explanation = $"{Bot.nerdCross} I cannot kick that user.";

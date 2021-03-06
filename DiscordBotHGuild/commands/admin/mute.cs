@@ -39,17 +39,17 @@ namespace DiscordBotHGuild.commands.admin
                 await ctx.Guild.CreateRoleAsync("muted").ConfigureAwait(false);
                 await ctx.RespondAsync("I just now created the muted role, be sure to put it in the correct position!").ConfigureAwait(false);
                 mutedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLower().Contains("muted")).Value;
+
+                // Set permissions for the muted role
+                mutedRole.Permissions.Revoke(Permissions.SendMessages);
+                mutedRole.Permissions.Revoke(Permissions.Speak);
+                mutedRole.Permissions.Revoke(Permissions.Stream);
             }
             if (member.Roles.Contains(mutedRole))
             {
                 await ctx.RespondAsync("That user is already muted.").ConfigureAwait(false);
                 return;
             }
-
-            // Set permissions for the muted role
-            mutedRole.Permissions.Revoke(Permissions.SendMessages);
-            mutedRole.Permissions.Revoke(Permissions.Speak);
-            mutedRole.Permissions.Revoke(Permissions.Stream);
 
             // Gets the bot within the guild
             var bot = ctx.Guild.Members.FirstOrDefault(x => x.Value.Username == ctx.Client.CurrentUser.Username).Value;
@@ -60,6 +60,12 @@ namespace DiscordBotHGuild.commands.admin
             var summonerHierarchy = ctx.Member.Hierarchy;
 
             // Hierarchy checking and executions
+            if (member == ctx.Member)
+            {
+                await ctx.RespondAsync($"{Bot.nerdCross} Cannot mute yourself!").ConfigureAwait(false);
+                return;
+            }
+
             if (memberHierarchy < botHierarchy)
             {
                 await member.GrantRoleAsync(mutedRole).ConfigureAwait(false);
@@ -76,10 +82,6 @@ namespace DiscordBotHGuild.commands.admin
 
                     await member.SendMessageAsync(embed: muteEmbedDM).ConfigureAwait(false);
                 }
-            }
-            else if (member == ctx.Member)
-            {
-                await ctx.RespondAsync($"{Bot.nerdCross} Cannot mute yourself!").ConfigureAwait(false);
             }
             else if (memberHierarchy >= summonerHierarchy)
             {
