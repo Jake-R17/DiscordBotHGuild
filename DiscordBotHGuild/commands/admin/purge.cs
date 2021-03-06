@@ -20,8 +20,6 @@ namespace DiscordBotHGuild.commands.admin
         {
             if (ctx.Guild == null) { return; }
 
-            await ctx.Message.DeleteAsync().ConfigureAwait(false);
-
             // Convert string to int. On fail; null
             Int32.TryParse(input, out int amount);
 
@@ -47,6 +45,15 @@ namespace DiscordBotHGuild.commands.admin
             // Error message, declared at if statement...
             string error;
 
+            if (amount < 1 || String.IsNullOrWhiteSpace(input))
+            {
+                errorEmbed.WithTitle("Incorrect usage").WithDescription("Usage: .purge <amount>");
+                await ctx.RespondAsync(embed: errorEmbed).ConfigureAwait(false);
+                return;
+            }
+
+            await ctx.Message.DeleteAsync().ConfigureAwait(false);
+
             // If statements and executions
             if (amount >= 1 && count >= 1)
             {
@@ -54,11 +61,6 @@ namespace DiscordBotHGuild.commands.admin
                 var purgeMessage = await ctx.RespondAsync(embed: purgeEmbed).ConfigureAwait(false);
                 await Task.Delay(10000);
                 await purgeMessage.DeleteAsync().ConfigureAwait(false);
-            }
-            else if (amount < 1 || String.IsNullOrWhiteSpace(input))
-            {
-                error = $"{Bot.nerdCross} Please enter a valid number of messages you want to delete.";
-                await ctx.RespondAsync(embed: errorEmbed.WithDescription(error)).ConfigureAwait(false);
             }
             else if (count == 0)
             {

@@ -17,6 +17,8 @@ namespace DiscordBotHGuild.commands.general
         {
             if (ctx.Guild == null) { return; }
 
+            await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
+
             member = (DiscordMember)(member ?? ctx.Member);
 
             // Get status

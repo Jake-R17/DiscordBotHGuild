@@ -18,13 +18,13 @@ namespace DiscordBotHGuild.commands.admin
         public async Task Kick(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Reason was not specified")
         {
             if (ctx.Guild == null) { return; }
-
-            var noUser = new DiscordEmbedBuilder()
-                .WithDescription($"{Bot.nerdCross} Please specify a user or their ID")
-                .WithColor(new DiscordColor(255, 0, 0));
-
             if (member == null)
             {
+                var noUser = new DiscordEmbedBuilder()
+                    .WithTitle("Incorrect usage")
+                    .WithDescription("Usage: .kick <member> <reason>(optional)")
+                    .WithColor(new DiscordColor(255, 0, 0));
+
                 await ctx.RespondAsync(embed: noUser).ConfigureAwait(false);
                 return;
             }
@@ -53,7 +53,7 @@ namespace DiscordBotHGuild.commands.admin
                 .WithColor(new DiscordColor(255, 0, 0));
 
             // Explain why x can't be done
-            string explanation = String.Empty;
+            string explanation;
 
             // Hierarchy checking and executions
             if (memberHierarchy < botHierarchy)
@@ -61,6 +61,10 @@ namespace DiscordBotHGuild.commands.admin
                 await member.SendMessageAsync(embed: kickEmbedDM).ConfigureAwait(false);
                 await member.RemoveAsync().ConfigureAwait(false);
                 await ctx.RespondAsync(embed: kickEmbed).ConfigureAwait(false);
+            }
+            else if (member == ctx.Member)
+            {
+                await ctx.RespondAsync($"{Bot.nerdCross} Cannot kick yourself!").ConfigureAwait(false);
             }
             else if (memberHierarchy > botHierarchy || member.IsBot)
             {

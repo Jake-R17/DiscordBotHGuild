@@ -15,6 +15,8 @@ namespace DiscordBotHGuild.commands.general
             if (ctx.Guild == null) { return; }
             if (question == null) { await ctx.RespondAsync(":anger: Ask a question dummy!").ConfigureAwait(false); return; }
 
+            await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
+
             var replies = new List<string>
             {
                 ":crystal_ball: **Yes**",

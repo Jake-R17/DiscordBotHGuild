@@ -16,6 +16,8 @@ namespace DiscordBotHGuild.commands.admin.PRIVATE
         {
             if (ctx.User.Id == 621045916517924866)
             {
+                await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
+
                 Console.WriteLine("*** MIGRATING... ***");
 
                 await using SqliteContext lite = new SqliteContext();

@@ -11,13 +11,10 @@ namespace DiscordBotHGuild.commands.admin.PRIVATE
         [Hidden]
         public async Task Reboot(CommandContext ctx)
         {
-            if (ctx.Guild == null)
-            {
-                return;
-            }
-
             if (ctx.User.Id == 621045916517924866 || ctx.User.Id == 304278201553911808 || ctx.User.Id == 385038858691280896)
             {
+                await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
+
                 await ctx.RespondAsync($"{ctx.User.Mention} RESTARTING! PLEASE WAIT AT LEAST 3 SECONDS BEFORE USING COMMANDS!..");
 
                 // Disconnect the client

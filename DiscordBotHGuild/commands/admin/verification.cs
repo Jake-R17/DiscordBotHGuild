@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using DiscordBotGuild;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
@@ -20,7 +21,7 @@ namespace DiscordBotHGuild.commands.admin
 
             if (role == null)
             {
-                await ctx.RespondAsync("There is no role called 'verified', please create this role to add a verification method.").ConfigureAwait(false);
+                await ctx.RespondAsync($"{Bot.nerdCross} There is no role called 'verified', please create this role to add a verification method.").ConfigureAwait(false);
                 return;
             }
 
@@ -32,7 +33,7 @@ namespace DiscordBotHGuild.commands.admin
                 .WithColor(new DiscordColor(50, 180, 130))
                 .WithFooter($"  • {ctx.User.Username}#{ctx.User.Discriminator}", ctx.User.AvatarUrl);
 
-            // Send message, create variable
+            // Create verification variable and send embed
             var verifyMessage = await ctx.Channel.SendMessageAsync(embed: verifyEmbed.WithThumbnail(ctx.User.AvatarUrl)).ConfigureAwait(false);
 
             // Get reactions

@@ -14,6 +14,8 @@ namespace DiscordBotHGuild.commands.general
         {
             if (ctx.Guild == null) { return; }
 
+            await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
+
             user = (DiscordMember)(user ?? ctx.Member);
 
             var avatarDisplay = new DiscordEmbedBuilder()

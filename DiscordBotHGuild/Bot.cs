@@ -83,10 +83,11 @@ namespace DiscordBotGuild
 
             // Registration of all commands (C = Command)
             Commands.RegisterCommands<BanC>();
-            Commands.RegisterCommands<MuteC>();
             Commands.RegisterCommands<KickC>();
+            Commands.RegisterCommands<MuteC>();
             Commands.RegisterCommands<PurgeC>();
             Commands.RegisterCommands<UnbanC>();
+            Commands.RegisterCommands<UnmuteC>();
             Commands.RegisterCommands<VerificationC>();
             Commands.RegisterCommands<AvatarC>();
             Commands.RegisterCommands<EightballC>();
@@ -128,8 +129,8 @@ namespace DiscordBotGuild
             var botGuild = sender.Guilds.FirstOrDefault(x => x.Value.Id == 622059558340395008).Value;
 
             // Default (yes/no)
-            nerdCheckmark = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "nerd_checkmark").Value;
-            nerdCross = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "nerd_cross").Value;
+            nerdCheckmark = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "ncheckmark").Value;
+            nerdCross = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "ncross").Value;
 
             // Discord status
             statOnline = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_online").Value;

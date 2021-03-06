@@ -15,16 +15,16 @@ namespace DiscordBotHGuild.commands.admin
         [Description("Bans the specified user, requires the 'Ban Members' permission")]
         [RequirePermissions(Permissions.BanMembers)]
         [Hidden]
-        public async Task Ban(CommandContext ctx, DiscordMember member = null, [RemainingText] string reason = "reason was not specified")
+        public async Task Ban(CommandContext ctx, DiscordMember member = null, [RemainingText] string reason = "Reason was not specified")
         {
             if (ctx.Guild == null) { return; }
-
-            var noUser = new DiscordEmbedBuilder()
-                .WithDescription($"{Bot.nerdCross} Please specify a user or their ID")
-                .WithColor(new DiscordColor(255, 0, 0));
-
             if (member == null)
             {
+                var noUser = new DiscordEmbedBuilder()
+                    .WithTitle("Incorrect usage")
+                    .WithDescription("Usage: .ban <member> <reason>(optional)")
+                    .WithColor(new DiscordColor(255, 0, 0));
+
                 await ctx.RespondAsync(embed: noUser).ConfigureAwait(false);
                 return;
             }
@@ -55,14 +55,18 @@ namespace DiscordBotHGuild.commands.admin
                 .WithColor(new DiscordColor(255, 0, 0));
 
             // Explain why x can't be done
-            string explanation = String.Empty;
+            string explanation;
 
             // Hierarchy checking and executions
             if (memberHierarchy < botHierarchy)
             {
                 await member.SendMessageAsync(embed: banEmbedDM).ConfigureAwait(false);
-                await member.BanAsync().ConfigureAwait(false);
+                await member.BanAsync(7, reason).ConfigureAwait(false);
                 await ctx.RespondAsync(embed: banEmbed).ConfigureAwait(false);
+            }
+            else if (member == ctx.Member)
+            {
+                await ctx.RespondAsync($"{Bot.nerdCross} Cannot ban yourself!").ConfigureAwait(false);
             }
             else if (memberHierarchy > botHierarchy || member.IsBot)
             {
