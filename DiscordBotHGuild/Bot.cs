@@ -58,11 +58,9 @@ namespace DiscordBotGuild
 
             // The client itself
             Client = new DiscordClient(config);
-			
-            // Client configs
-			Client.Ready += OnClientReady;
-            Client.GuildAvailable += OnGuildAvailable;
+		
 
+            // Client config
             Client.UseInteractivity(new InteractivityConfiguration
             {
                 Timeout = TimeSpan.FromMinutes(5)
@@ -79,6 +77,10 @@ namespace DiscordBotGuild
             // Command registration
             Commands = Client.UseCommandsNext(commandsConfig);
 
+            // Client events
+            Client.Ready += OnClientReady;
+            Client.GuildAvailable += OnGuildAvailable;
+            Client.MessageCreated += OnMessageSent;
             Commands.CommandErrored += OnCommandFail;
 
             // Registration of all commands (C = Command)
@@ -93,6 +95,7 @@ namespace DiscordBotGuild
             Commands.RegisterCommands<EightballC>();
             Commands.RegisterCommands<MembersC>();
             Commands.RegisterCommands<ProfileC>();
+            Commands.RegisterCommands<QuickpollC>();
             Commands.RegisterCommands<HelpC>();
 
             // PRIVATE
@@ -140,11 +143,23 @@ namespace DiscordBotGuild
             statStreaming = botGuild.Emojis.FirstOrDefault(x => x.Value.Name == "status_streaming").Value;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        private async Task OnMessageSent(DiscordClient client, MessageCreateEventArgs e)
+        {
+            _ = Task.Run(() => OnMessageMethod(e.Channel, e.Message));
+        }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task OnMessageMethod(DiscordChannel ch, DiscordMessage m)
+        {
+            await m.DeleteAsync().ConfigureAwait(false);
+            await ch.SendMessageAsync($"Warned {m.Author}. User posted an invite!").ConfigureAwait(false);
+        }
+
         private async Task OnCommandFail(CommandsNextExtension ext, CommandErrorEventArgs e)
         {
             if (e.Exception is ArgumentException exc)
             {
-                if (exc.Message == "Could not find a suitable overload for the command.")
+                if (exc.Message == "Could not find a suitable overload for the command." && e.Command.Name != "quickpoll")
                 {
                     await e.Context.RespondAsync($"{Bot.nerdCross} that is not a valid user.");
                     return;
@@ -175,17 +190,24 @@ namespace DiscordBotGuild
                     {
                         if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.CooldownAttribute")
                         {
-                            await e.Context.RespondAsync($"{e.Context.User.Mention} please wait a bit before using this command again.");
+                            if (e.Command.Name == "quickpoll")
+                            {
+                                await e.Context.RespondAsync("You can only use this command once every 5 minutes.").ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await e.Context.RespondAsync($"{e.Context.User.Mention} please wait a bit before using this command again.").ConfigureAwait(false);
+                            }
                             return;
                         }
                         if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.RequirePermissionsAttribute")
                         {
-                            await e.Context.RespondAsync($"{e.Context.User.Mention} you have insufficient permissions.");
+                            await e.Context.RespondAsync($"{e.Context.User.Mention} you have insufficient permissions.").ConfigureAwait(false);
                             return;
                         }
                         if (f.TypeId.ToString() == "DSharpPlus.CommandsNext.Attributes.RequireBotPermissionsAttribute")
                         {
-                            await e.Context.RespondAsync($"{e.Context.User.Mention} I'm lacking certain permissions associated with this command");
+                            await e.Context.RespondAsync($"{e.Context.User.Mention} I'm lacking certain permissions associated with this command").ConfigureAwait(false);
                             return;
                         }
                     }

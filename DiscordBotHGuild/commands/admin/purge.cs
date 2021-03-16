@@ -23,6 +23,19 @@ namespace DiscordBotHGuild.commands.admin
             // Convert string to int. On fail; null
             Int32.TryParse(input, out int amount);
 
+            if (amount < 1 || String.IsNullOrWhiteSpace(input))
+            {
+                var usageEmbed = new DiscordEmbedBuilder()
+                    .WithTitle("Incorrect usage")
+                    .WithDescription("Usage: .purge <amount>")
+                    .WithColor(new DiscordColor(255, 0, 0));
+
+                await ctx.RespondAsync(embed: usageEmbed).ConfigureAwait(false);
+                return;
+            }
+
+            await ctx.Message.DeleteAsync().ConfigureAwait(false);
+
             if (amount > 1000)
             {
                 amount = 1000;
@@ -40,19 +53,8 @@ namespace DiscordBotHGuild.commands.admin
                 .WithFooter($" •  {ctx.User.Username}#{ctx.User.Discriminator}", ctx.User.AvatarUrl);
 
             var errorEmbed = new DiscordEmbedBuilder()
+                .WithDescription($"{Bot.nerdCross} Either the messages are too old or there are none to delete.")
                 .WithColor(new DiscordColor(255, 0, 0));
-
-            // Error message, declared at if statement...
-            string error;
-
-            if (amount < 1 || String.IsNullOrWhiteSpace(input))
-            {
-                errorEmbed.WithTitle("Incorrect usage").WithDescription("Usage: .purge <amount>");
-                await ctx.RespondAsync(embed: errorEmbed).ConfigureAwait(false);
-                return;
-            }
-
-            await ctx.Message.DeleteAsync().ConfigureAwait(false);
 
             // If statements and executions
             if (amount >= 1 && count >= 1)
@@ -64,8 +66,7 @@ namespace DiscordBotHGuild.commands.admin
             }
             else if (count == 0)
             {
-                error = $"{Bot.nerdCross} Either the messages are too old or there are none to delete.";
-                await ctx.RespondAsync(embed: errorEmbed.WithDescription(error)).ConfigureAwait(false);
+                await ctx.RespondAsync(embed: errorEmbed).ConfigureAwait(false);
             }
         }
     }

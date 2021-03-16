@@ -9,7 +9,6 @@ namespace DiscordBotHGuild.commands.help
     public class HelpC : BaseCommandModule
     {
         [GroupCommand]
-        [Description("Displays all public commands")]
         public async Task Helplist(CommandContext ctx)
         {
             await ctx.Guild.GetAllMembersAsync().ConfigureAwait(false);

@@ -70,15 +70,14 @@ namespace DiscordBotHGuild.commands.admin
                 await member.BanAsync(7, reason).ConfigureAwait(false);
                 await ctx.RespondAsync(embed: banEmbed).ConfigureAwait(false);
             }
-
-            else if (memberHierarchy > botHierarchy || member.IsBot)
-            {
-                explanation = $"{Bot.nerdCross} I can't ban that user.";
-                await ctx.RespondAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
-            }
             else if (memberHierarchy >= summonerHierarchy)
             {
                 explanation = $"{Bot.nerdCross} The specified user has equal or more permissions than you.";
+                await ctx.RespondAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
+            }
+            else if (memberHierarchy > botHierarchy || member.IsBot)
+            {
+                explanation = $"{Bot.nerdCross} I can't ban that user.";
                 await ctx.RespondAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
             }
         }

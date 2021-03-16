@@ -12,46 +12,67 @@ namespace DiscordBotHGuild.commands.admin
     public class MuteC : BaseCommandModule
     {
         [Command("mute")]
-        [Description("Mutes the specified user for the given amount of time")]
         [RequirePermissions(Permissions.MuteMembers)]
-        [RequireBotPermissions(Permissions.ManageRoles)]
         [Hidden]
-        public async Task Mute(CommandContext ctx, [Description("The member to mute")]DiscordMember member = null, 
-            [Description("The reason (optional); why is x getting muted")]string reason = null)
+        public async Task Mute(CommandContext ctx, DiscordMember member = null, [RemainingText]string reason = null)
         {
             if (ctx.Guild == null) { return; }
-            if (member == null) 
+
+            if (member == null)
             {
                 var noMember = new DiscordEmbedBuilder()
                     .WithTitle("Incorrect usage")
                     .WithDescription("Usage: .mute <member> <reason>(optional)")
                     .WithColor(new DiscordColor(255, 0, 0));
 
-                await ctx.RespondAsync(noMember).ConfigureAwait(false); 
-                return; 
+                await ctx.RespondAsync(noMember).ConfigureAwait(false);
+                return;
             }
 
-            // Get muted role. If there is none, create role
+            // Public embe explanation
+            string d = string.Empty;
+
+            var publicEmbed = new DiscordEmbedBuilder()
+                .WithColor(new DiscordColor(255, 0, 0));
+
+            if (member == ctx.Member)
+            {
+                d = $"{Bot.nerdCross} Cannot mute yourself!";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(d)).ConfigureAwait(false);
+                return;
+            }
+
+            // Get mute role. If there is none, create one
             var mutedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLower().Contains("muted")).Value;
 
             if (mutedRole == null)
             {
-                await ctx.Guild.CreateRoleAsync("muted").ConfigureAwait(false);
-                await ctx.RespondAsync("I just now created the muted role, be sure to put it in the correct position!").ConfigureAwait(false);
+                await ctx.Guild.CreateRoleAsync("Muted", null, (new DiscordColor(94, 94, 94))).ConfigureAwait(false);
                 mutedRole = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Name.ToLower().Contains("muted")).Value;
-
-                // Set permissions for the muted role
-                mutedRole.Permissions.Revoke(Permissions.SendMessages);
-                mutedRole.Permissions.Revoke(Permissions.Speak);
-                mutedRole.Permissions.Revoke(Permissions.Stream);
             }
+
+            // Set overrides unless they are already set (mutedRole)
+            foreach (var ch in ctx.Guild.Channels)
+            {
+                var overwrites = ch.Value.PermissionOverwrites;
+
+                if (ch.Value.Type == ChannelType.Text || ch.Value.Type == ChannelType.Category)
+                {
+                    if (overwrites.Any(x => x.Id == mutedRole.Id) == false || overwrites == null)
+                    {
+                        await ch.Value.AddOverwriteAsync(mutedRole, Permissions.None, Permissions.SendMessages).ConfigureAwait(false);
+                    }
+                }
+            }
+
             if (member.Roles.Contains(mutedRole))
             {
-                await ctx.RespondAsync("That user is already muted.").ConfigureAwait(false);
+                d = $"{Bot.nerdCross} The specified user is already muted.";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(d)).ConfigureAwait(false);
                 return;
             }
 
-            // Gets the bot within the guild
+            // Gets the bot within the guil
             var bot = ctx.Guild.Members.FirstOrDefault(x => x.Value.Username == ctx.Client.CurrentUser.Username).Value;
 
             // Hierarchy checks. Top role (POS) to int.
@@ -59,14 +80,8 @@ namespace DiscordBotHGuild.commands.admin
             var memberHierarchy = member.Hierarchy;
             var summonerHierarchy = ctx.Member.Hierarchy;
 
-            // Hierarchy checking and executions
-            if (member == ctx.Member)
-            {
-                await ctx.RespondAsync($"{Bot.nerdCross} Cannot mute yourself!").ConfigureAwait(false);
-                return;
-            }
-
-            if (memberHierarchy < botHierarchy)
+            // Hierarchy checking an executions
+            if (memberHierarchy < summonerHierarchy)
             {
                 await member.GrantRoleAsync(mutedRole).ConfigureAwait(false);
                 await ctx.Message.CreateReactionAsync(Bot.nerdCheckmark).ConfigureAwait(false);
@@ -82,14 +97,19 @@ namespace DiscordBotHGuild.commands.admin
 
                     await member.SendMessageAsync(embed: muteEmbedDM).ConfigureAwait(false);
                 }
+
+                if (!member.IsMuted)
+                {
+                    await member.SetMuteAsync(true).ConfigureAwait(false);
+                }
             }
             else if (memberHierarchy >= summonerHierarchy)
             {
                 await ctx.RespondAsync($"{Bot.nerdCross} The specified user has equal or more permissions than you.").ConfigureAwait(false);
             }
-            else if (member.IsBot)
+            else if (memberHierarchy > botHierarchy || member.IsBot)
             {
-                await ctx.RespondAsync($"{Bot.nerdCross} I cannot mute bots.").ConfigureAwait(false);
+                await ctx.RespondAsync($"{Bot.nerdCross} I cannot mute **{member.DisplayName}#{member.Discriminator}**").ConfigureAwait(false);
             }
         }
     }

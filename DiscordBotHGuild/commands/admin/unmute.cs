@@ -27,8 +27,9 @@ namespace DiscordBotHGuild.commands.admin
             
             if (member.Roles.Contains(mutedRole))
             {
-                await member.RevokeRoleAsync(mutedRole).ConfigureAwait(false);
                 await ctx.Message.CreateReactionAsync(Bot.nerdCheckmark).ConfigureAwait(false);
+                await member.RevokeRoleAsync(mutedRole).ConfigureAwait(false);
+                await member.SetMuteAsync(false).ConfigureAwait(false);
             }
             else
             {
