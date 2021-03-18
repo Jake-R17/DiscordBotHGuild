@@ -15,13 +15,14 @@ namespace DiscordBotHGuild.commands.general
         [Command("profile")]
         [Aliases("uinfo", "whois", "memberinfo", "account")]
         [Description("Shows some general information about a given member")]
+        [Cooldown(1, 3, CooldownBucketType.User)]
         public async Task Profile(CommandContext ctx, DiscordMember member = null)
         {
             if (ctx.Guild == null) { return; }
 
             await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
 
-            member = (DiscordMember)(member ?? ctx.Member);
+            member ??= ctx.Member;
 
             // Get status
             var status = member.Presence.Status.ToString();

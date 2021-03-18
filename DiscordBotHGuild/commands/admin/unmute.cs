@@ -13,13 +13,26 @@ namespace DiscordBotHGuild.commands.admin
     {
         [Command("unmute")]
         [RequirePermissions(Permissions.MuteMembers)]
+        [Cooldown(1, 2, CooldownBucketType.User)]
         [Hidden]
         public async Task Unmute(CommandContext ctx, DiscordMember member = null)
         {
             if (ctx.Guild == null) { return; }
+
+            var publicEmbed = new DiscordEmbedBuilder()
+                .WithColor(new DiscordColor(255, 0, 0));
+
+            // Explain why x can't be done
+            string explanation;
+
             if (member == null)
             {
-                await ctx.RespondAsync($"{Bot.nerdCross} Please specify a user to unmute.").ConfigureAwait(false);
+                var noMember = new DiscordEmbedBuilder()
+                    .WithTitle("Incorrect usage")
+                    .WithDescription("Usage: .unmute <member>")
+                    .WithColor(new DiscordColor(255, 0, 0));
+
+                await ctx.RespondAsync(noMember).ConfigureAwait(false);
                 return;
             }
 
@@ -33,7 +46,8 @@ namespace DiscordBotHGuild.commands.admin
             }
             else
             {
-                await ctx.RespondAsync($"{Bot.nerdCross} The specified user isn't muted.").ConfigureAwait(false);
+                explanation = $"{Bot.nerdCross} The specified user isn't muted.";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
             }
         }
     }

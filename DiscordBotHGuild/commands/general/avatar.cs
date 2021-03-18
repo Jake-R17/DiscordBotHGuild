@@ -9,19 +9,18 @@ namespace DiscordBotHGuild.commands.general
     {
         [Command("avatar")]
         [Aliases("av", "img", "image", "pfp")]
-        [Description("Shows the profile picture of you or the given user")]
-        public async Task Avatar(CommandContext ctx, DiscordMember user = null)
+        [Description("Shows the profile picture of you or the given member")]
+        [Cooldown(1, 2, CooldownBucketType.User)]
+        public async Task Avatar(CommandContext ctx, DiscordMember member = null)
         {
             if (ctx.Guild == null) { return; }
 
-            await ctx.Channel.TriggerTypingAsync().ConfigureAwait(false);
-
-            user = (DiscordMember)(user ?? ctx.Member);
+            member ??= ctx.Member;
 
             var avatarDisplay = new DiscordEmbedBuilder()
                 .WithTitle($"Avatar of:")
-                .WithDescription(user.Mention)
-                .WithImageUrl(user.AvatarUrl)
+                .WithDescription(member.Mention)
+                .WithImageUrl(member.AvatarUrl)
                 .WithFooter($" •  Requested by: {ctx.User.Username}#{ctx.User.Discriminator}", ctx.User.AvatarUrl);
 
             await ctx.RespondAsync(embed: avatarDisplay).ConfigureAwait(false);

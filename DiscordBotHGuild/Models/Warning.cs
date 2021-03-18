@@ -1,10 +1,12 @@
-﻿namespace DiscordBotHGuild.Models
+﻿using System;
+
+namespace DiscordBotHGuild.Models
 {
-    public class Warnings : Entity
+    public class Warning : Entity
     {
         public string GuildId { get; set; }
         public string MemberId { get; set; }
         public string WarnReason { get; set; }
-        public int WarnAmount { get; set; }
+        public DateTime WarnDate { get; set; }
     }
 }

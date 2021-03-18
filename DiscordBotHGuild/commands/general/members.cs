@@ -10,6 +10,7 @@ namespace DiscordBotHGuild.commands.general
     {
         [Command("members")]
         [Aliases("m", "users")]
+        [Cooldown(1, 3, CooldownBucketType.User)]
         public async Task Members(CommandContext ctx)
         {
             if (ctx.Guild == null) { return; }

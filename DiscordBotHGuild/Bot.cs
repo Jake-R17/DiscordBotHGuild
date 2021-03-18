@@ -85,12 +85,14 @@ namespace DiscordBotGuild
 
             // Registration of all commands (C = Command)
             Commands.RegisterCommands<BanC>();
+            Commands.RegisterCommands<ClearwarnsC>();
             Commands.RegisterCommands<KickC>();
             Commands.RegisterCommands<MuteC>();
             Commands.RegisterCommands<PurgeC>();
             Commands.RegisterCommands<UnbanC>();
             Commands.RegisterCommands<UnmuteC>();
-            Commands.RegisterCommands<VerificationC>();
+            Commands.RegisterCommands<WarnC>();
+            Commands.RegisterCommands<WarningsC>();
             Commands.RegisterCommands<AvatarC>();
             Commands.RegisterCommands<EightballC>();
             Commands.RegisterCommands<MembersC>();
@@ -100,7 +102,6 @@ namespace DiscordBotGuild
 
             // PRIVATE
             Commands.RegisterCommands<MigrationC>();
-            Commands.RegisterCommands<RebootC>();
 
             // EXTRA
             Commands.RegisterCommands<SophieC>();
@@ -151,8 +152,11 @@ namespace DiscordBotGuild
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task OnMessageMethod(DiscordChannel ch, DiscordMessage m)
         {
-            await m.DeleteAsync().ConfigureAwait(false);
-            await ch.SendMessageAsync($"Warned {m.Author}. User posted an invite!").ConfigureAwait(false);
+            if (m.Content.Contains("discord.gg/") || m.Content.Contains("discord.com/invite/"))
+            {
+                await m.DeleteAsync().ConfigureAwait(false);
+                await ch.SendMessageAsync($"Warned {m.Author.Username}. User posted an invite!").ConfigureAwait(false);
+            }
         }
 
         private async Task OnCommandFail(CommandsNextExtension ext, CommandErrorEventArgs e)

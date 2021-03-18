@@ -10,6 +10,7 @@ namespace DiscordBotHGuild.commands.general
     {
         [Command("8ball")]
         [Aliases("8b")]
+        [Cooldown(1, 1, CooldownBucketType.User)]
         public async Task Eightball(CommandContext ctx, [Description("Whatever you want an answer to, put it here :magic_wand:")][RemainingText] string question = null)
         {
             if (ctx.Guild == null) { return; }

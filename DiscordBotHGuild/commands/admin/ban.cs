@@ -1,4 +1,6 @@
 ﻿using DiscordBotGuild;
+using DiscordBotHGuild.DBContext;
+using DiscordBotHGuild.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -14,6 +16,7 @@ namespace DiscordBotHGuild.commands.admin
         [Command("ban")]
         [Description("Bans the specified user, requires the 'Ban Members' permission")]
         [RequirePermissions(Permissions.BanMembers)]
+        [Cooldown(1, 3, CooldownBucketType.User)]
         [Hidden]
         public async Task Ban(CommandContext ctx, DiscordMember member = null, [RemainingText] string reason = "Reason was not specified")
         {
@@ -22,7 +25,7 @@ namespace DiscordBotHGuild.commands.admin
             {
                 var noUser = new DiscordEmbedBuilder()
                     .WithTitle("Incorrect usage")
-                    .WithDescription("Usage: .ban <member> <reason>(optional)")
+                    .WithDescription("Usage: .ban <member> <optional reason>")
                     .WithColor(new DiscordColor(255, 0, 0));
 
                 await ctx.RespondAsync(embed: noUser).ConfigureAwait(false);
@@ -51,34 +54,40 @@ namespace DiscordBotHGuild.commands.admin
                 .WithThumbnail(ctx.Guild.IconUrl)
                 .WithFooter($" •  {bot.Username}  •  Date: {DateTime.UtcNow:dd/M/yyyy}", bot.AvatarUrl);
 
-            var cannotBan = new DiscordEmbedBuilder()
+            var publicEmbed = new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor(255, 0, 0));
 
             // Explain why x can't be done
             string explanation;
 
-            // Hierarchy checking and executions
+            // Hierarchy checking
             if (member == ctx.Member)
             {
                 await ctx.RespondAsync($"{Bot.nerdCross} Cannot ban yourself!").ConfigureAwait(false);
                 return;
             }
+            if (reason.Length > 50)
+            {
+                explanation = $"{Bot.nerdCross} The reason cannot exceed 50 characters!";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
+                return;
+            }
 
-            if (memberHierarchy < botHierarchy)
+            if (memberHierarchy < botHierarchy && memberHierarchy < summonerHierarchy)
             {
                 await member.SendMessageAsync(embed: banEmbedDM).ConfigureAwait(false);
                 await member.BanAsync(7, reason).ConfigureAwait(false);
                 await ctx.RespondAsync(embed: banEmbed).ConfigureAwait(false);
             }
+            else if (memberHierarchy > botHierarchy || member.IsBot)
+            {
+                explanation = $"{Bot.nerdCross} I can't ban ``{member.DisplayName}#{member.Discriminator}``.";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
+            }
             else if (memberHierarchy >= summonerHierarchy)
             {
                 explanation = $"{Bot.nerdCross} The specified user has equal or more permissions than you.";
-                await ctx.RespondAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
-            }
-            else if (memberHierarchy > botHierarchy || member.IsBot)
-            {
-                explanation = $"{Bot.nerdCross} I can't ban that user.";
-                await ctx.RespondAsync(embed: cannotBan.WithDescription(explanation)).ConfigureAwait(false);
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
             }
         }
     }

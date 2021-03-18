@@ -12,7 +12,7 @@ namespace DiscordBotHGuild.commands.general
     {
         [Command("quickpoll")]
         [Aliases("qp")]
-        [Cooldown(1, 1, CooldownBucketType.User)]
+        [Cooldown(1, 5, CooldownBucketType.User)]
         public async Task Quickpoll(CommandContext ctx, TimeSpan span, [RemainingText] string input = null)
         {
             if (ctx.Guild == null) { return; }

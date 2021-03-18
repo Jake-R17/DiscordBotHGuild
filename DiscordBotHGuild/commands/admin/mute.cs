@@ -13,32 +13,38 @@ namespace DiscordBotHGuild.commands.admin
     {
         [Command("mute")]
         [RequirePermissions(Permissions.MuteMembers)]
+        [Cooldown(1, 1, CooldownBucketType.User)]
         [Hidden]
         public async Task Mute(CommandContext ctx, DiscordMember member = null, [RemainingText]string reason = null)
         {
             if (ctx.Guild == null) { return; }
-
             if (member == null)
             {
                 var noMember = new DiscordEmbedBuilder()
                     .WithTitle("Incorrect usage")
-                    .WithDescription("Usage: .mute <member> <reason>(optional)")
+                    .WithDescription("Usage: .mute <member> <optional reason>")
                     .WithColor(new DiscordColor(255, 0, 0));
 
                 await ctx.RespondAsync(noMember).ConfigureAwait(false);
                 return;
             }
 
-            // Public embe explanation
-            string d = string.Empty;
-
             var publicEmbed = new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor(255, 0, 0));
 
+            // Explain why x can't be done
+            string explanation;
+
             if (member == ctx.Member)
             {
-                d = $"{Bot.nerdCross} Cannot mute yourself!";
-                await ctx.RespondAsync(embed: publicEmbed.WithDescription(d)).ConfigureAwait(false);
+                explanation = $"{Bot.nerdCross} Cannot mute yourself!";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
+                return;
+            }
+            if (reason.Length > 50)
+            {
+                explanation = $"{Bot.nerdCross} The reason cannot exceed 50 characters!";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
                 return;
             }
 
@@ -67,12 +73,12 @@ namespace DiscordBotHGuild.commands.admin
 
             if (member.Roles.Contains(mutedRole))
             {
-                d = $"{Bot.nerdCross} The specified user is already muted.";
-                await ctx.RespondAsync(embed: publicEmbed.WithDescription(d)).ConfigureAwait(false);
+                explanation = $"{Bot.nerdCross} The specified user is already muted.";
+                await ctx.RespondAsync(embed: publicEmbed.WithDescription(explanation)).ConfigureAwait(false);
                 return;
             }
 
-            // Gets the bot within the guil
+            //Get the bot itself
             var bot = ctx.Guild.Members.FirstOrDefault(x => x.Value.Username == ctx.Client.CurrentUser.Username).Value;
 
             // Hierarchy checks. Top role (POS) to int.
@@ -80,7 +86,7 @@ namespace DiscordBotHGuild.commands.admin
             var memberHierarchy = member.Hierarchy;
             var summonerHierarchy = ctx.Member.Hierarchy;
 
-            // Hierarchy checking an executions
+            // Hierarchy checking
             if (memberHierarchy < summonerHierarchy)
             {
                 await member.GrantRoleAsync(mutedRole).ConfigureAwait(false);
@@ -103,13 +109,13 @@ namespace DiscordBotHGuild.commands.admin
                     await member.SetMuteAsync(true).ConfigureAwait(false);
                 }
             }
+            else if (memberHierarchy > botHierarchy || member.IsBot)
+            {
+                await ctx.RespondAsync($"{Bot.nerdCross} I cannot mute ``{member.DisplayName}#{member.Discriminator}``").ConfigureAwait(false);
+            }
             else if (memberHierarchy >= summonerHierarchy)
             {
                 await ctx.RespondAsync($"{Bot.nerdCross} The specified user has equal or more permissions than you.").ConfigureAwait(false);
-            }
-            else if (memberHierarchy > botHierarchy || member.IsBot)
-            {
-                await ctx.RespondAsync($"{Bot.nerdCross} I cannot mute **{member.DisplayName}#{member.Discriminator}**").ConfigureAwait(false);
             }
         }
     }

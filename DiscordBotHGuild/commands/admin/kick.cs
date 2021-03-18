@@ -14,15 +14,16 @@ namespace DiscordBotHGuild.commands.admin
         [Command("kick")]
         [Description("Kicks the specified user from the guild")]
         [RequirePermissions(Permissions.KickMembers)]
+        [Cooldown(1, 3, CooldownBucketType.User)]
         [Hidden]
-        public async Task Kick(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Reason was not specified")
+        public async Task Kick(CommandContext ctx, DiscordMember member = null, [RemainingText] string reason = "Reason was not specified")
         {
             if (ctx.Guild == null) { return; }
             if (member == null)
             {
                 var noUser = new DiscordEmbedBuilder()
                     .WithTitle("Incorrect usage")
-                    .WithDescription("Usage: .kick <member> <reason>(optional)")
+                    .WithDescription("Usage: .kick <member> <optional reason>")
                     .WithColor(new DiscordColor(255, 0, 0));
 
                 await ctx.RespondAsync(embed: noUser).ConfigureAwait(false);
@@ -55,10 +56,16 @@ namespace DiscordBotHGuild.commands.admin
             // Explain why x can't be done
             string explanation;
 
-            // Hierarchy checking and executions
+            // Hierarchy checking
             if (member == ctx.Member)
             {
                 await ctx.RespondAsync($"{Bot.nerdCross} Cannot kick yourself!").ConfigureAwait(false);
+            }
+            if (reason.Length > 50)
+            {
+                explanation = $"{Bot.nerdCross} The reason cannot exceed 50 characters!";
+                await ctx.RespondAsync(embed: cannotKick.WithDescription(explanation)).ConfigureAwait(false);
+                return;
             }
 
             if (memberHierarchy < botHierarchy)
